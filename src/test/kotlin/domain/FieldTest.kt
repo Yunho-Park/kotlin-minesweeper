@@ -70,6 +70,8 @@ class FieldTest {
 
         field.setMine(TestSelector(mine))
         field.setHints()
+        field.status = field.status.next()
+
         field.clickCell(0, 0)
 
         assertAll(
@@ -83,12 +85,13 @@ class FieldTest {
     }
 
     @Test
-    fun `못찾은 지뢰가 남아있는지 확인`() {
+    fun `지뢰가 없으면 첫 클릭에 게임 종료`() {
         val field = Field(3, 3)
         field.setHints()
-        field.clickCell(0, 0)
+        field.status = field.status.next()
 
-        assertThat(field.mineRemains()).isFalse()
+        field.clickCell(0, 0)
+        assertThat(field.isFinished()).isTrue()
     }
 
     @Test
@@ -104,7 +107,10 @@ class FieldTest {
             field.setMine(TestSelector(mines))
         }
 
-        assertThat(field.mineRemains()).isFalse()
+        field.setHints()
+        field.status = field.status.next()
+
+        assertThat(field.isFinished()).isTrue()
     }
 
     @Test
@@ -120,12 +126,13 @@ class FieldTest {
             field.setMine(TestSelector(mines))
         }
         field.setHints()
+        field.status = field.status.next()
 
         assertAll(
-            { assertThat(field.mineRemains()).isTrue() },
+            { assertThat(field.isFinished()).isFalse() },
             {
                 field.clickCell(0, 0)
-                assertThat(field.mineRemains()).isFalse()
+                assertThat(field.isFinished()).isTrue()
             },
         )
     }
